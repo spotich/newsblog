@@ -1,17 +1,25 @@
 package main
 
 import (
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
+	"runtime"
+
+	"github.com/spotich/newsblog/internal/pkg/newsmanager"
 )
 
-type news struct {
-	Title string
-	Body  string
-}
+var (
+	_, b, _, _ = runtime.Caller(0)
+	basePath   = filepath.Join(filepath.Dir(b), "../")
+	mgr        newsmanager.Manager
+)
 
 func main() {
+	os.Setenv("BASE_PATH", basePath)
 	http.HandleFunc("/news", newsHandler)
 	log.Println("server is listening at http://localhost:3000/news")
 	log.Fatal(http.ListenAndServe(":3000", nil))
@@ -22,14 +30,15 @@ func newsHandler(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	data := getNews()
-	tmpl.Execute(w, data)
-}
+	configPath := fmt.Sprintf("%s/configs/database.json", basePath)
 
-func getNews() []news {
-	return []news{
-		{"First Title", "First Body"},
-		{"Second Title", "Second Body"},
-		{"Third Title", "Third Body"},
+	err = mgr.Connect(configPath)
+	if err != nil {
+		log.Fatal(err)
 	}
+	news, err := mgr.GetNews()
+	if err != nil {
+		log.Fatal(err)
+	}
+	tmpl.Execute(w, news)
 }
