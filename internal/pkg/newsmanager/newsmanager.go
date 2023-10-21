@@ -16,10 +16,10 @@ type Manager struct {
 }
 
 type news struct {
-	id    int64
-	title string
-	body  string
-	cover string
+	Id    int64
+	Title string
+	Body  string
+	Cover string
 }
 
 func (mgr *Manager) Connect(configPath string) error {
@@ -51,7 +51,7 @@ func (mgr *Manager) GetNews() ([]news, error) {
 	var data []news
 	for rows.Next() {
 		var n news
-		if err := rows.Scan(&n.id, &n.title, &n.body, &n.cover); err != nil {
+		if err := rows.Scan(&n.Id, &n.Title, &n.Body, &n.Cover); err != nil {
 			return nil, err
 		}
 		data = append(data, n)
@@ -79,6 +79,5 @@ func getConfig(configPath string) (*mysql.Config, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	return &cfg, nil
 }

@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path"
 	"path/filepath"
 	"runtime"
 
@@ -21,12 +22,13 @@ var (
 func main() {
 	os.Setenv("BASE_PATH", basePath)
 	http.HandleFunc("/news", newsHandler)
+	http.Handle("/public/img/", http.StripPrefix("/public/img/", http.FileServer(http.Dir(path.Join(basePath, "/public/img/")))))
 	log.Println("server is listening at http://localhost:3000/news")
 	log.Fatal(http.ListenAndServe(":3000", nil))
 }
 
 func newsHandler(w http.ResponseWriter, req *http.Request) {
-	tmpl, err := template.ParseFiles("../public/news.html")
+	tmpl, err := template.ParseFiles("../public/tmpl/news.html")
 	if err != nil {
 		log.Fatal(err)
 	}
